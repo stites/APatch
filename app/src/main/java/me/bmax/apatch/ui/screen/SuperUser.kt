@@ -59,7 +59,11 @@ import me.bmax.apatch.ui.component.SwitchItem
 import me.bmax.apatch.ui.component.pinnedScrollBehavior
 import me.bmax.apatch.ui.viewmodel.SuperUserViewModel
 import me.bmax.apatch.util.PkgConfig
+import dev.utils.app.AppUtils.getPackageManager
+import android.content.pm.PackageManager
 
+private val pm: PackageManager
+    get() = getPackageManager()
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Destination<RootGraph>
@@ -164,7 +168,8 @@ private fun AppItem(
         headlineContent = { Text(app.label) },
         leadingContent = {
             AsyncImage(
-                model = ImageRequest.Builder(LocalContext.current).data(app.packageInfo)
+                model = ImageRequest.Builder(LocalContext.current)
+                    .data(app.applicationInfo.loadIcon(pm))
                     .crossfade(true).build(),
                 contentDescription = app.label,
                 modifier = Modifier
