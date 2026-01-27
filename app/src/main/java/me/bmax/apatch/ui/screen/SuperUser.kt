@@ -1,5 +1,6 @@
 package me.bmax.apatch.ui.screen
 
+import android.content.Context
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -59,11 +60,8 @@ import me.bmax.apatch.ui.component.SwitchItem
 import me.bmax.apatch.ui.component.pinnedScrollBehavior
 import me.bmax.apatch.ui.viewmodel.SuperUserViewModel
 import me.bmax.apatch.util.PkgConfig
-import dev.utils.app.AppUtils.getPackageManager
 import android.content.pm.PackageManager
 
-private val pm: PackageManager
-    get() = getPackageManager()
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Destination<RootGraph>
@@ -153,6 +151,7 @@ private fun AppItem(
     var showEditProfile by remember { mutableStateOf(false) }
     var rootGranted by remember { mutableStateOf(config.allow != 0) }
     var excludeApp by remember { mutableIntStateOf(config.exclude) }
+    val pm: PackageManager = LocalContext.current.packageManager;
 
     ListItem(
         modifier = Modifier.clickable(onClick = {

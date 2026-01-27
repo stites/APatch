@@ -1,5 +1,6 @@
 package me.bmax.apatch.ui.viewmodel
 
+import android.app.PendingIntent.getActivity
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -19,7 +20,6 @@ import com.topjohnwu.superuser.Shell
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.parcelize.Parcelize
-import me.bmax.apatch.IAPRootService
 import me.bmax.apatch.Natives
 import me.bmax.apatch.apApp
 import me.bmax.apatch.services.RootServices
@@ -32,7 +32,7 @@ import kotlin.concurrent.thread
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 import android.content.pm.PackageManager
-import dev.utils.app.AppUtils.getPackageManager
+import androidx.compose.ui.platform.LocalContext
 
 class SuperUserViewModel : ViewModel() {
     companion object {
@@ -42,8 +42,13 @@ class SuperUserViewModel : ViewModel() {
 
         fun getAppIconDrawable(context: Context, packageName: String): Drawable? {
             val appList = synchronized(appsLock) { apps }
-            val appDetail = appList.find { it.packageName == packageName }
-            return appDetail?.packageInfo?.applicationInfo?.loadIcon(context.packageManager)
+            val appDetail = appList.find { it.packageName == packageName } ?: return null
+            val pkgInfo: PackageInfo = try {
+                context.packageManager.getPackageInfo(packageName, 0)
+            } catch (e: PackageManager.NameNotFoundException) {
+                return null
+            }
+            return pkgInfo.applicationInfo?.loadIcon(context.packageManager)
         }
     }
 
@@ -117,7 +122,8 @@ class SuperUserViewModel : ViewModel() {
         try {
 
             withContext(Dispatchers.IO) {
-                val pm = getPackageManager()
+                val pm: PackageManager = apApp.packageManager
+
                 val allPackages = pm.getInstalledApplications(PackageManager.MATCH_UNINSTALLED_PACKAGES)
             
                 val uids = Natives.suUids().toList()
